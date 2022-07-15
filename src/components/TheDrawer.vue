@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Drawer, DrawerContent } from "@progress/kendo-vue-layout";
-import { useRouter } from "vue-router";
+import { useRouter , useRoute } from "vue-router";
 import { ref, computed } from "vue";
+import  { useLocalStorage}  from "@vueuse/core"
 
 const router = useRouter();
-const expanded = ref(false);
+const route = useRoute()
+const selectedId = ref(0)
+const expanded = useLocalStorage("artemis-drawer", true);
 const expandedIcon = computed(() =>
-  expanded.value ? "k-i: arrow-chewrom-left " : "k-i: arrow- chewrom-right"
+  expanded.value ? "k-i-arrow-chevron-left " : "k-i-arrow-chevron-right"
 );
 const items = computed(() => [
   {
@@ -42,10 +45,15 @@ const items = computed(() => [
       action: () => (expanded.value = !expanded.value),
     },
   },
-]);
+].map ((item) => ({
+  ...item,
+  selected:item.data.path ? route.path.startsWith(item.data.path) : false,
+}))
+);
 
 function onSelect({ itemIndex }: { itemIndex: number }) {
   const item = items.value[itemIndex];
+  if(!item) return;
   if (item.data.path) router.push(item.data.path);
   if (typeof item.data.action === "function") item.data.action();
 }
