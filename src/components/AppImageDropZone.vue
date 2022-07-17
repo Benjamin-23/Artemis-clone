@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useBase64, useDropZone } from "@vueuse/core";
+import { ref } from "vue";
 
 const file = ref();
 const { base64: url } = useBase64(file);
-
+const dropzoneE1 = ref<HTMLElement | null>(null);
+const { isOverDropZone } = useDropZone(dropzoneE1, (files) => {
+  if (!files) return;
+  file.value = files[0];
+  console.log(file.value);
+});
 function onFileChange(e: any) {
   file.value = e.target.files[0];
   console.log(file.value);
@@ -20,7 +25,9 @@ function reset() {
 
     <div>
       <div
+        ref="dropzoneE1"
         class="flex"
+        :class="{ border: isOverDropZone, 'border-orange-400': isOverDropZone }"
         style="width: 300px; height: 200px; position: relative; background: #3331"
       >
         <input
@@ -29,8 +36,8 @@ function reset() {
           @input="onFileChange"
           accept="image/*"
         />
+        <img v-if="url" :src="url" alt="loading" />
         <div class="m-auto opacity-40">Drag your image here</div>
-        <img v-if="url" :src="url" alt="" />
       </div>
     </div>
     <button @click="reset">Reset</button>
