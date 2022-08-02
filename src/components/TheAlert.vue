@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Notification, NotificationGroup } from "@progress/kendo-vue-notification";
 import { Fade } from "@progress/kendo-vue-animation";
+import { useAlerts } from "@/store/alert";
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
 
-const close = ref(true);
+const store = useAlerts();
+const { items } = storeToRefs(store);
 </script>
 
 <template>
@@ -11,14 +14,15 @@ const close = ref(true);
     <NotificationGroup
       style="right: 10px; buttom: 10px; flexwrap: wrap-reverse; alignitems: flex-start"
     >
-      <Fade appear>
+      <Fade v-for="alert in items" :key="alert.id" appear>
         <Notification
           :key="'success'"
           :type="{ style: 'success', icon: true }"
-          :closable="true"
-          @close="onClose() => {} "
+          :closable="alert.closable"
+          @close="() => {}"
         >
-          <span> Your have saved you Data</span>
+          <div v-if="alert.html" v-html="alert.message"></div>
+          <span v-else>{{ alert.message }} </span>
         </Notification>
       </Fade>
     </NotificationGroup>

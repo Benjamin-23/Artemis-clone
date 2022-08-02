@@ -1,6 +1,5 @@
-import { AlertOptions } from './alert';
 
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuid } from 'uuid'
 
 export  type AlertStye = "error" | "message" | "info" |" warning" |"none"
@@ -8,13 +7,13 @@ export  type AlertStye = "error" | "message" | "info" |" warning" |"none"
 export interface AlertOptions { 
     html?: boolean
     closable?:boolean
-    timeout?: string | true
+    timeout?: number | false
     style?:AlertStye
 }
 const defaultOptions: Required<AlertOptions> ={
     html: false,
     closable: true,
-    timeout: '3000',
+    timeout: 3000,
     style: 'info'
 }
 export interface Alert extends AlertOptions{
@@ -22,13 +21,13 @@ export interface Alert extends AlertOptions{
     message:string,
 }
 
-export const alert = defineStore('alert', { 
+export const useAlerts = defineStore('alert', { 
     state: () => ({
         items:[] as Alert []
     }),
     actions:{
-      notify( message:string, style:AlertStye, options?:AlertOptions = {}){
-        options = { ...defaultOptions, style ...options}
+      notify( message:string, style:AlertStye, options:AlertOptions = {}){
+        options = { ...defaultOptions, style, ...options}
         const id = uuid()
         this.items.push({
             message,
@@ -41,6 +40,11 @@ export const alert = defineStore('alert', {
     }
         
       },
-      remove(){}
+      remove(id:string){
+        const index = this.items.findIndex((item) => item.id === id)
+        if( index > -1){
+            this.items.slice(index, 1)
+        }
+      }
     }
 })
